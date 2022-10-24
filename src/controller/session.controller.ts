@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createSession } from "../service/session.service";
+import { createSession, findSession } from "../service/session.service";
 import { validatePassword } from "../service/user.service";
 import { signJwt } from "../utils/jwt.utils";
 import config from "config";
@@ -15,7 +15,6 @@ export const createUserSessionHandler = async (req: Request, res: Response) => {
   //create a session
 
   const session = await createSession(user._id, req.get("user-agent") || "");
-
   //create an access token
 
   const accessToken = signJwt(
@@ -24,5 +23,20 @@ export const createUserSessionHandler = async (req: Request, res: Response) => {
   );
   //create a refresh token
 
+  const refreshToken = signJwt(
+    { ...user, session: session._id },
+    { expiresIn: config.get("refreshTokenTtl") } //15min
+  );
+
+  return res.send({ accessToken, refreshToken });
+
   //return access& refreshtokens
+};
+
+export const getUserSessionHandler = async (req: Request, res: Response) => {
+  const userId = res.locals.user._id;
+
+  const session = await findSession({ user: userId, valid: true });
+
+  return res.send(session);
 };

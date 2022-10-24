@@ -22,14 +22,15 @@ export async function validatePassword({
   email: string;
   password: string;
 }) {
-  const user = await UserModel.findOne({ email: email, password: password });
+  const user = await UserModel.findOne({ email });
+
   if (!user) {
-    return false; //
+    return false;
   }
 
-  const isvalid = await user.comparePassword(password);
+  const isValid = await user.comparePassword(password);
 
-  if (!isvalid) return false; //
+  if (!isValid) return false;
 
   return omit(user.toJSON(), "password");
 }
