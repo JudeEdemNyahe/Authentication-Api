@@ -2,12 +2,14 @@ import { Express, Request, Response } from "express";
 import {
   createUserSessionHandler,
   getUserSessionHandler,
+  deleteSessionHandler,
 } from "./controller/session.controller";
 import { createUserHandler } from "./controller/user.controller";
 import validateResource from "./middleware/validateResource";
 import { createUserSchema } from "./schema/user.schema";
 import { createSessionSchema } from "./schema/session.schema";
 import requireUser from "./middleware/requireUser";
+
 function routes(app: Express) {
   app.get("/healthcheck", (req: Request, res: Response) => {
     res.sendStatus(200);
@@ -21,7 +23,9 @@ function routes(app: Express) {
     createUserSessionHandler
   );
 
-  app.post("/api/sessions", requireUser, getUserSessionHandler);
+  app.get("/api/sessions", requireUser, getUserSessionHandler);
+
+  app.delete("/api/sessions", requireUser, deleteSessionHandler);
 }
 
 export default routes;
